@@ -6,7 +6,7 @@
 
 #include "ui_qtgps.h"
 #include "skyView.h"
-#include "libgpsmm.h"
+#include <libgpsmm.h>
 
 class QtGps : public QWidget
 {

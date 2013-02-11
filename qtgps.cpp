@@ -18,6 +18,12 @@
 #include <string>
 #include <unistd.h>
 
+enum deg_str_type { deg_dd, deg_ddmm, deg_ddmmss };
+
+static char *deg_to_str( enum deg_str_type type,  double f)
+{
+    return "deg_to_str";
+}
 
 static enum deg_str_type deg_type = deg_dd;
 struct unit_t {
@@ -161,12 +167,12 @@ void QtGps::init()
 		return;
 	}
 
-	if (gps_rec.set_callback(callback)!=0 ) {
+/*	if (gps_rec.set_callback(callback)!=0 ) {
 		QMessageBox::critical(NULL, "ERROR", "Error setting callback");
 		qWarning("Error setting callback");
 		QCoreApplication::quit();
 		return;
-	}
+	}*/
 
 #if 0
 	qDebug("querying...");
@@ -211,12 +217,12 @@ void QtGps::paintEvent(QPaintEvent *)
 	skyView->update();
 	
 	/* This is for the satellite status display */
-	if (gd->satellites) {
+	if (gd->satellites_visible) {
 		QString str;
 
 		// PRN:   Elev:  Azim:  SNR:  Used:
 		for (int i = 0; i < MAXCHANNELS; i++) {
-			if (i < gd->satellites) {
+			if (i < gd->satellites_visible) {
 				QTableWidgetItem *n = new QTableWidgetItem(str.setNum(gd->PRN[i]));
 				n->setFlags(0);
 				ui.satelliteList->setItem(i, 0, n);
@@ -285,13 +291,13 @@ void QtGps::paintEvent(QPaintEvent *)
 	} else
 		ui.track->setText("n/a");
 
-	if (isnan(gd->fix.eph)==0) {
-		(void)snprintf(s, sizeof(s), "%f %s",
-					   gd->fix.eph * altunits->factor,
-					   altunits->legend);
-		ui.eph->setText(s);
-	} else
-		ui.eph->setText("n/a");
+// 	if (isnan(gd->fix.eph)==0) {
+// 		(void)snprintf(s, sizeof(s), "%f %s",
+// 					   gd->fix.eph * altunits->factor,
+// 					   altunits->legend);
+// 		ui.eph->setText(s);
+// 	} else
+// 		ui.eph->setText("n/a");
 
 	if (isnan(gd->fix.epv)==0) {
 		(void)snprintf(s, sizeof(s), "%f %s", 
@@ -363,7 +369,7 @@ void QtGps::closeEvent (QCloseEvent *)
 	qDebug("In close");
 
 	// stop the callbacks
-	if(gps_rec.del_callback()!=0) {
-		qDebug("Error deleting callback");
-	}
+//	if(gps_rec.del_callback()!=0) {
+//		qDebug("Error deleting callback");
+//	}
 }

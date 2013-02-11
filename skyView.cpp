@@ -71,7 +71,7 @@ void SkyView::paintEvent(QPaintEvent *)
 	painter.setFont(serifFont);
 	
 	/* Now draw the satellites... */
-	for (int i = 0; i < gpsdata->satellites; i++) {
+	for (int i = 0; i < gpsdata->satellites_visible; i++) {
 		QColor col;
 		pol2cart(w, h, (double)gpsdata->azimuth[i], 
 				 (double)gpsdata->elevation[i], &x, &y);

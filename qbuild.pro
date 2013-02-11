@@ -19,7 +19,7 @@ INCLUDEPATH += .
 
 
 # Input
-HEADERS += gps.h libgpsmm.h qtgps.h skyView.h
+HEADERS += qtgps.h skyView.h
 FORMS += qtgps.ui
 SOURCES += main.cpp qtgps.cpp skyView.cpp
 LIBS += -lgps # -lpthread -lnsl -lm
