@@ -36,7 +36,6 @@ class QtGps : public QWidget
 		SkyView *skyView;
 		struct gps_data_t gpsdata;
                 struct gps_data_t *gps_data;
-		gpsmm gps_rec;
 
 		QString sentence;
 		time_t timer;	/* time of last state change */

@@ -159,7 +159,7 @@ void QtGps::init()
 
 #if GPSD_API_MAJOR_VERSION >= 5
         /* gps_open returns 0 on success */
-        if (gps_open(host.toAscii(), DEFAULT_GPSD_PORT, gps_data))) {
+        if (gps_open(host.toAscii(), DEFAULT_GPSD_PORT, gps_data)) {
 #else
         gps_data = gps_open(host.toAscii(), DEFAULT_GPSD_PORT);
         if(!gps_data) {
