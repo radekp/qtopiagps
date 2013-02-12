@@ -20,7 +20,7 @@
 
 enum deg_str_type { deg_dd, deg_ddmm, deg_ddmmss };
 
-static char *deg_to_str( enum deg_str_type type,  double f)
+static const char *deg_to_str( enum deg_str_type type,  double f)
 {
     return "deg_to_str";
 }
@@ -80,7 +80,7 @@ QtGps::~QtGps()
 	delete skyView;
 }
 
-static void callback(struct gps_data_t* p, char* buf, size_t /*len*/, int /*level*/) {
+static void callback(struct gps_data_t* p, char* buf, size_t /*len*/) {
 	if (p==NULL) {
 		qWarning("Error polling gpsd");
 		QMessageBox::critical(NULL, "ERROR", "Error polling gpsd");
@@ -156,23 +156,20 @@ void QtGps::init()
 
 	qDebug("Using host %s\n", (const char *)host.toAscii());
 
-	struct gps_data_t *resp;
 
-	resp= gps_rec.open(host.toAscii(), DEFAULT_GPSD_PORT);
+#if GPSD_API_MAJOR_VERSION >= 5
+        /* gps_open returns 0 on success */
+        if (gps_open(host.toAscii(), DEFAULT_GPSD_PORT, gps_data))) {
+#else
+        gps_data = gps_open(host.toAscii(), DEFAULT_GPSD_PORT);
+        if(!gps_data) {
+#endif
+            qWarning() << "failed to open GPS, is gpsd daemon running?";
+            return;
+        }
 
-	if (resp==NULL) {
-		qWarning("error opening gpsd");
-		QMessageBox::critical(NULL, "ERROR", "Error opening gpsd");
-		QCoreApplication::quit();
-		return;
-	}
-
-/*	if (gps_rec.set_callback(callback)!=0 ) {
-		QMessageBox::critical(NULL, "ERROR", "Error setting callback");
-		qWarning("Error setting callback");
-		QCoreApplication::quit();
-		return;
-	}*/
+        gps_stream(gps_data, WATCH_ENABLE | WATCH_JSON, NULL);
+        QTimer::singleShot(100, this, SLOT(readGpsData()));
 
 #if 0
 	qDebug("querying...");
@@ -190,6 +187,15 @@ void QtGps::setGpsData(struct gps_data_t *gd, char *buf, size_t, int)
 	sentence= buf == NULL ? "" : buf;
 }
 
+void QtGps::readGpsData()
+{
+        int res = gps_read(gps_data);
+        if(res == 0) {
+            newGpsData(gps_data, NULL);
+        }
+        QTimer::singleShot(5000, this, SLOT(readGpsData()));
+}
+
 void QtGps::newGpsData(struct gps_data_t *gd, char *message)
 {
 	setGpsData(gd, message);
@@ -202,7 +208,8 @@ void QtGps::paintEvent(QPaintEvent *)
 	QMutexLocker locker(&mutex);
 	
  	int newstate;
- 	char s[128], *latlon;
+ 	char s[128];
+        const char *latlon;
 
 	struct gps_data_t *gd= &gpsdata;
 	

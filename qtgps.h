@@ -21,6 +21,7 @@ class QtGps : public QWidget
 	public slots:
 		void newGpsData(struct gps_data_t *gpsdata, char *message);
 		void init();
+                void readGpsData();
 
 	protected:
 		void paintEvent(QPaintEvent *event);
@@ -34,6 +35,7 @@ class QtGps : public QWidget
 
 		SkyView *skyView;
 		struct gps_data_t gpsdata;
+                struct gps_data_t *gps_data;
 		gpsmm gps_rec;
 
 		QString sentence;
